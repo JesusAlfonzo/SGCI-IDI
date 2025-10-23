@@ -8,23 +8,23 @@ use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
+// Clases necesarias para sobrescribir 'register'
+use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\JsonResponse;
+
 class RegisterController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
     | Register Controller
     |--------------------------------------------------------------------------
-    |
-    | This controller handles the registration of new users as well as their
-    | validation and creation. By default this controller uses a trait to
-    | provide this functionality without requiring any additional code.
-    |
     */
 
     use RegistersUsers;
 
     /**
-     * Where to redirect users after registration.
+     * Donde redirigir a los usuarios después del registro (solo si el método register no se sobrescribe).
      *
      * @var string
      */
@@ -37,7 +37,9 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        // IMPORTANTE: Se ELIMINA el middleware 'guest' para permitir que el
+        // Super Administrador (ya logeado) pueda acceder a la ruta.
+        // La protección de acceso la maneja el 'role:Super Administrador' en routes/web.php.
     }
 
     /**
@@ -56,17 +58,50 @@ class RegisterController extends Controller
     }
 
     /**
-     * Create a new user instance after a valid registration.
+     * Create a new user instance after a valid registration, y le asigna el rol por defecto.
      *
      * @param  array  $data
      * @return \App\Models\User
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+
+        // ASIGNAR EL ROL POR DEFECTO
+        // Asumimos que todos los usuarios creados aquí serán Solicitantes.
+        $user->assignRole('Solicitante');
+
+        return $user;
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * SOBREESCRITO: Se elimina la línea $this->guard()->login($user); 
+     * para evitar que el Super Administrador sea deslogueado.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    public function register(Request $request)
+    {
+        $this->validator($request->all())->validate();
+
+        // El método create() ahora se encarga de asignar el rol 'Solicitante'.
+        event(new Registered($user = $this->create($request->all())));
+
+        // LÍNEA ELIMINADA: $this->guard()->login($user); 
+
+        if ($response = $this->registered($request, $user)) {
+            return $response;
+        }
+
+        // Redirige al Super Administrador de vuelta a la vista de registro con un mensaje de éxito
+
+        return redirect()->route('register')->with('success', '✅ Usuario ' . $user->name . ' creado como Solicitante.');
     }
 }
