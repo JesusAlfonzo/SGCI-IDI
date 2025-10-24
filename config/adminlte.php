@@ -123,7 +123,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | User Menu
+    | User menu
     |--------------------------------------------------------------------------
     |
     | Here you can activate and change the user menu.
@@ -288,126 +288,171 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Menu Items
+    | menu Items
     |--------------------------------------------------------------------------
     |
     | Here we can modify the sidebar/top navigation of the admin panel.
     |
     | For detailed instructions you can look here:
-    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
+    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/menu-Configuration
     |
     */
 
-    'menu' => [
-        // Navbar items:
-        [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
-        [
-            'type' => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],
+'menu' => [
 
-        // Sidebar items:
-        [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],
-        [
-            'text' => 'blog',
-            'url' => 'admin/blog',
-            'can' => 'manage-blog',
-        ],
-        [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
-        ],
-        ['header' => 'account_settings'],
-        [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
-        ],
-        [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
-        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                    'submenu' => [
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                        ],
-                        [
-                            'text' => 'level_two',
-                            'url' => '#',
-                            'submenu' => [
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                                [
-                                    'text' => 'level_three',
-                                    'url' => '#',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
+    // --- ENCABEZADO PRINCIPAL ---
+    [
+        'text' => 'GESTIÓN DE INVENTARIO',
+        'icon' => 'fas fa-fw fa-box-open',
+        'classes' => 'text-bold text-center',
+    ],
+
+    // ----------------------------------------------------------------------
+    // --- MÓDULO DE INVENTARIO CENTRAL (PRODUCTS, KITS) ---
+    // ----------------------------------------------------------------------
+    [
+        'text'    => 'Inventario',
+        'icon'    => 'fas fa-fw fa-warehouse',
+        // Puedes agregar permisos aquí para controlar quién ve este menú
+        // 'can'     => 'manage-inventory', 
+        'submenu' => [
+            [
+                'text' => 'Productos y Stock',
+                'route'  => 'products.index', // Entidad PRODUCTS [cite: 5]
+                'icon' => 'fas fa-fw fa-boxes',
+                // 'can'  => 'view-products',
             ],
-        ],
-        ['header' => 'labels'],
-        [
-            'text' => 'important',
-            'icon_color' => 'red',
-            'url' => '#',
-        ],
-        [
-            'text' => 'warning',
-            'icon_color' => 'yellow',
-            'url' => '#',
-        ],
-        [
-            'text' => 'information',
-            'icon_color' => 'cyan',
-            'url' => '#',
+            [
+                'text' => 'Kits',
+                'route'  => 'kits.index', // Entidad KITS [cite: 5]
+                'icon' => 'fas fa-fw fa-box',
+                // 'can'  => 'view-kits',
+            ],
+            [
+                'text' => 'Historial de Precios',
+                'route'  => 'product_prices.index', // Entidad PRODUCT_PRICES [cite: 5]
+                'icon' => 'fas fa-fw fa-tags',
+                // 'can'  => 'view-prices',
+            ],
         ],
     ],
 
+    // ----------------------------------------------------------------------
+    // --- FLUJO DE ENTRADA (COMPRAS) ---
+    // ----------------------------------------------------------------------
+    [
+        'text'    => 'Entradas y Compras',
+        'icon'    => 'fas fa-fw fa-truck-loading',
+        'submenu' => [
+            [
+                'text' => 'Registrar Compra',
+                'route'  => 'purchases.create', // Entidad PURCHASES [cite: 5]
+                'icon' => 'fas fa-fw fa-plus-circle',
+                // 'can'  => 'create-purchase',
+            ],
+            [
+                'text' => 'Historial de Entradas',
+                'route'  => 'purchases.index', // Entidad PURCHASE_DETAILS [cite: 6]
+                'icon' => 'fas fa-fw fa-list-alt',
+                // 'can'  => 'view-purchases',
+            ],
+        ],
+    ],
+
+    // ----------------------------------------------------------------------
+    // --- FLUJO DE SALIDA (SOLICITUDES) ---
+    // ----------------------------------------------------------------------
+    [
+        'text'    => 'Salidas y Solicitudes',
+        'icon'    => 'fas fa-fw fa-clipboard-list',
+        'submenu' => [
+            [
+                'text' => 'Mis Solicitudes',
+                'route'  => 'requests.index', // Entidad REQUESTS [cite: 6]
+                'icon' => 'fas fa-fw fa-paper-plane',
+                // 'can'  => 'view-requests',
+            ],
+            [
+                'text' => 'Aprobaciones',
+                'route'  => 'approvals.index', // Entidad REQUEST_APPROVALS [cite: 6]
+                'icon' => 'fas fa-fw fa-user-check',
+                // Permiso para el usuario que aprueba [cite: 9]
+                // 'can'  => 'approve-requests', 
+            ],
+            [
+                'text' => 'Entregas (Consumo)',
+                'route'  => 'deliveries.index', // Entidad REQUEST_DELIVERY_DETAILS [cite: 6]
+                'icon' => 'fas fa-fw fa-handshake',
+                // 'can'  => 'manage-deliveries',
+            ],
+            [
+                'text' => 'Uso de Kits',
+                'route'  => 'kit_usages.index', // Entidad KIT_USAGES [cite: 5]
+                'icon' => 'fas fa-fw fa-flask',
+                // 'can'  => 'register-kit-usage',
+            ],
+        ],
+    ],
+    
+    // --- SEPARADOR ---
+    ['header' => 'CONFIGURACIÓN Y MAESTROS'],
+
+    // ----------------------------------------------------------------------
+    // --- TABLAS MAESTRAS ---
+    // ----------------------------------------------------------------------
+    [
+        'text'    => 'Maestros del Sistema',
+        'icon'    => 'fas fa-fw fa-database',
+        // 'can'     => 'manage-masters', 
+        'submenu' => [
+            [
+                'text' => 'Proveedores',
+                'route'  => 'suppliers.index', // Entidad SUPPLIERS [cite: 5]
+                'icon' => 'fas fa-fw fa-address-book',
+            ],
+            [
+                'text' => 'Ubicaciones',
+                'route'  => 'locations.index', // Entidad LOCATIONS [cite: 5]
+                'icon' => 'fas fa-fw fa-map-marker-alt',
+            ],
+            [
+                'text' => 'Categorías',
+                'route'  => 'categories.index', // Entidad CATEGORIES [cite: 5]
+                'icon' => 'fas fa-fw fa-layer-group',
+            ],
+            [
+                'text' => 'Unidades de Medida',
+                'route'  => 'units.index', // Entidad UNITS [cite: 5]
+                'icon' => 'fas fa-fw fa-ruler-combined',
+            ],
+        ],
+    ],
+    
+    // ----------------------------------------------------------------------
+    // --- ADMINISTRACIÓN ---
+    // ----------------------------------------------------------------------
+    [
+        'text' => 'Usuarios y Roles',
+        'route'  => 'users.index', // Entidad USERS [cite: 5]
+        'icon' => 'fas fa-fw fa-users-cog',
+        // 'can'  => 'manage-users',
+    ],
+],
+
     /*
     |--------------------------------------------------------------------------
-    | Menu Filters
+    | menu Filters
     |--------------------------------------------------------------------------
     |
     | Here we can modify the menu filters of the admin panel.
     |
     | For detailed instructions you can look the menu filters section here:
-    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/Menu-Configuration
+    | https://github.com/jeroennoten/Laravel-AdminLTE/wiki/menu-Configuration
     |
     */
 
     'filters' => [
-        JeroenNoten\LaravelAdminLte\Menu\Filters\GateFilter::class,
+        JeroenNoten\LaravelAdminLte\menu\Filters\GateFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\HrefFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\SearchFilter::class,
         JeroenNoten\LaravelAdminLte\Menu\Filters\ActiveFilter::class,
