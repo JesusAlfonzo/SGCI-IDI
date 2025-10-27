@@ -28,6 +28,10 @@ use App\Http\Controllers\HomeController; // Asumimos un HomeController
 |
 */
 
+Route::get('/', function(){
+    return view('welcome');
+})->name('welcome');
+
 // --- RUTAS DE AUTENTICACIÓN Y PÁGINA DE INICIO ---
 // Estas rutas son generadas por Laravel UI/AdminLTE para login, register, etc.
 Auth::routes();
