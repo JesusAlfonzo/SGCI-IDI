@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreRequestApprovalRequest;
+use App\Http\Requests\UpdateRequestApprovalRequest;
 
 class ApprovalController extends Controller
 {
@@ -28,7 +30,7 @@ class ApprovalController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreRequestApprovalRequest $request)
     {
         //
     }
@@ -52,7 +54,7 @@ class ApprovalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateRequestApprovalRequest $request, $id)
     {
         //
     }

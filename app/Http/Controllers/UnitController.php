@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUnitRequest;
+use App\Http\Requests\UpdateUnitRequest;
 use Illuminate\Http\Request;
 
 class UnitController extends Controller
@@ -28,7 +30,7 @@ class UnitController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUnitRequest $request)
     {
         //
     }
@@ -52,7 +54,7 @@ class UnitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUnitRequest $request, $id)
     {
         //
     }

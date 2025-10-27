@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreProductPriceRequest;
+use App\Http\Requests\UpdateProductPriceRequest;
 
 class ProductPriceController extends Controller
 {
@@ -28,7 +30,7 @@ class ProductPriceController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProductPriceRequest $request)
     {
         //
     }
@@ -52,7 +54,7 @@ class ProductPriceController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProductPriceRequest $request, $id)
     {
         //
     }

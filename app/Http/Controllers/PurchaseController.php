@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StorePurchaseRequest;
+use App\Http\Requests\UpdatePurchaseRequest;
+use App\Http\Requests\StorePurchaseDetailRequest;
 
 class PurchaseController extends Controller
 {
@@ -29,7 +32,7 @@ public function __construct()
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePurchaseRequest $request)
     {
         //
     }
@@ -53,7 +56,7 @@ public function __construct()
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdatePurchaseRequest $request, $id)
     {
         //
     }
