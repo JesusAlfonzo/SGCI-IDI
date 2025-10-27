@@ -308,134 +308,119 @@ return [
     ],
 
     // ----------------------------------------------------------------------
-    // --- MÓDULO DE INVENTARIO CENTRAL (PRODUCTS, KITS) ---
+    // --- MÓDULO DE INVENTARIO CENTRAL (inventory.) ---
     // ----------------------------------------------------------------------
     [
-        'text'    => 'Inventario',
-        'icon'    => 'fas fa-fw fa-warehouse',
-        // Puedes agregar permisos aquí para controlar quién ve este menú
-        // 'can'     => 'manage-inventory', 
+        'text'      => 'Inventario',
+        'icon'      => 'fas fa-fw fa-warehouse',
         'submenu' => [
             [
                 'text' => 'Productos y Stock',
-                'route'  => 'products.index', // Entidad PRODUCTS [cite: 5]
+                'route' => 'inventory.products.index',
                 'icon' => 'fas fa-fw fa-boxes',
-                // 'can'  => 'view-products',
             ],
             [
                 'text' => 'Kits',
-                'route'  => 'kits.index', // Entidad KITS [cite: 5]
+                'route' => 'inventory.kits.index',
                 'icon' => 'fas fa-fw fa-box',
-                // 'can'  => 'view-kits',
             ],
             [
+                // Nota: Usamos product_prices.index por la convención de 'names' en web.php
                 'text' => 'Historial de Precios',
-                'route'  => 'product_prices.index', // Entidad PRODUCT_PRICES [cite: 5]
+                'route' => 'inventory.product_prices.index',
                 'icon' => 'fas fa-fw fa-tags',
-                // 'can'  => 'view-prices',
             ],
         ],
     ],
 
     // ----------------------------------------------------------------------
-    // --- FLUJO DE ENTRADA (COMPRAS) ---
+    // --- FLUJOS DE TRABAJO (flows.) ---
     // ----------------------------------------------------------------------
     [
-        'text'    => 'Entradas y Compras',
-        'icon'    => 'fas fa-fw fa-truck-loading',
+        'text'      => 'Entradas y Compras',
+        'icon'      => 'fas fa-fw fa-truck-loading',
         'submenu' => [
             [
                 'text' => 'Registrar Compra',
-                'route'  => 'purchases.create', // Entidad PURCHASES [cite: 5]
+                'route' => 'flows.purchases.create', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-plus-circle',
-                // 'can'  => 'create-purchase',
             ],
             [
                 'text' => 'Historial de Entradas',
-                'route'  => 'purchases.index', // Entidad PURCHASE_DETAILS [cite: 6]
+                'route' => 'flows.purchases.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-list-alt',
-                // 'can'  => 'view-purchases',
             ],
         ],
     ],
 
-    // ----------------------------------------------------------------------
-    // --- FLUJO DE SALIDA (SOLICITUDES) ---
-    // ----------------------------------------------------------------------
     [
-        'text'    => 'Salidas y Solicitudes',
-        'icon'    => 'fas fa-fw fa-clipboard-list',
+        'text'      => 'Salidas y Solicitudes',
+        'icon'      => 'fas fa-fw fa-clipboard-list',
         'submenu' => [
             [
                 'text' => 'Mis Solicitudes',
-                'route'  => 'requests.index', // Entidad REQUESTS [cite: 6]
+                'route' => 'flows.requests.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-paper-plane',
-                // 'can'  => 'view-requests',
             ],
             [
                 'text' => 'Aprobaciones',
-                'route'  => 'approvals.index', // Entidad REQUEST_APPROVALS [cite: 6]
+                'route' => 'flows.approvals.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-user-check',
-                // Permiso para el usuario que aprueba [cite: 9]
-                // 'can'  => 'approve-requests', 
             ],
             [
                 'text' => 'Entregas (Consumo)',
-                'route'  => 'deliveries.index', // Entidad REQUEST_DELIVERY_DETAILS [cite: 6]
+                'route' => 'flows.deliveries.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-handshake',
-                // 'can'  => 'manage-deliveries',
             ],
             [
+                // Nota: Usamos kit_usages.index por la convención de 'names' en web.php
                 'text' => 'Uso de Kits',
-                'route'  => 'kit_usages.index', // Entidad KIT_USAGES [cite: 5]
+                'route' => 'flows.kit_usages.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-flask',
-                // 'can'  => 'register-kit-usage',
             ],
         ],
     ],
-    
+
     // --- SEPARADOR ---
     ['header' => 'CONFIGURACIÓN Y MAESTROS'],
 
     // ----------------------------------------------------------------------
-    // --- TABLAS MAESTRAS ---
+    // --- TABLAS MAESTRAS (admin.) ---
     // ----------------------------------------------------------------------
     [
-        'text'    => 'Maestros del Sistema',
-        'icon'    => 'fas fa-fw fa-database',
-        // 'can'     => 'manage-masters', 
+        'text'      => 'Maestros del Sistema',
+        'icon'      => 'fas fa-fw fa-database',
         'submenu' => [
             [
                 'text' => 'Proveedores',
-                'route'  => 'suppliers.index', // Entidad SUPPLIERS [cite: 5]
+                'route' => 'admin.suppliers.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-address-book',
             ],
             [
                 'text' => 'Ubicaciones',
-                'route'  => 'locations.index', // Entidad LOCATIONS [cite: 5]
+                'route' => 'admin.locations.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-map-marker-alt',
             ],
             [
                 'text' => 'Categorías',
-                'route'  => 'categories.index', // Entidad CATEGORIES [cite: 5]
+                'route' => 'admin.categories.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-layer-group',
             ],
             [
                 'text' => 'Unidades de Medida',
-                'route'  => 'units.index', // Entidad UNITS [cite: 5]
+                'route' => 'admin.units.index', // ¡CORREGIDO!
                 'icon' => 'fas fa-fw fa-ruler-combined',
             ],
         ],
     ],
-    
+
     // ----------------------------------------------------------------------
-    // --- ADMINISTRACIÓN ---
+    // --- ADMINISTRACIÓN (admin.) ---
     // ----------------------------------------------------------------------
     [
         'text' => 'Usuarios y Roles',
-        'route'  => 'users.index', // Entidad USERS [cite: 5]
-        'icon' => 'fas fa-fw fa-users-cog',
-        // 'can'  => 'manage-users',
+        'route' => 'admin.users.index', // ¡CORREGIDO!
+        'icon' => 'fas fa-fw fa-users',
     ],
 ],
 

@@ -15,17 +15,12 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\HomeController; // Asumimos un HomeController
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
 | Rutas Web
 |--------------------------------------------------------------------------
-|
-| Aquí es donde puedes registrar rutas web para tu aplicación. Estas
-| rutas son cargadas por el RouteServiceProvider dentro de un grupo
-| que contiene el grupo de middleware "web". ¡Ahora haz algo genial!
-|
 */
 
 Route::get('/', function(){
@@ -33,78 +28,66 @@ Route::get('/', function(){
 })->name('welcome');
 
 // --- RUTAS DE AUTENTICACIÓN Y PÁGINA DE INICIO ---
-// Estas rutas son generadas por Laravel UI/AdminLTE para login, register, etc.
 Auth::routes();
-
-// Ruta principal después del login
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 
-// --- GRUPO DE RUTAS PROTEGIDAS (ACCESO RESTRINGIDO) ---
-// Todo lo que está aquí debe ser accedido por un usuario autenticado.
+// --- GRUPO DE RUTAS PROTEGIDAS (REQUIERE AUTENTICACIÓN) ---
 Route::middleware(['auth'])->group(function () {
 
     // =======================================================================
-    // 1. MÓDULO DE INVENTARIO CENTRAL (PRODUCTS, KITS)
+    // 1. INVENTARIO CENTRAL (Prefijo: /inventory)
+    // Coincide con la estructura de vistas: resources/views/inventory/...
     // =======================================================================
+    Route::prefix('inventory')->name('inventory.')->group(function () {
+        
+        // Entidad PRODUCTS [cite: 1]
+        Route::resource('products', ProductController::class); 
 
-    // Entidad PRODUCTS [cite: 1]
-    Route::resource('products', ProductController::class); 
+        // Entidad KITS (Extensión de productos) [cite: 1]
+        Route::resource('kits', KitController::class)->except(['show']);
 
-    // Entidad KITS (Extensión de productos) [cite: 1]
-    Route::resource('kits', KitController::class)->except(['show']);
-
-    // Entidad PRODUCT_PRICES (Historial de precios) [cite: 1]
-    // Generalmente solo se listan (index), se crean/registran (store), y se ven (show).
-    Route::resource('product_prices', ProductPriceController::class)->except(['edit', 'update', 'destroy']);
-
-
-    // =======================================================================
-    // 2. FLUJO DE ENTRADA (COMPRAS) [cite: 12]
-    // =======================================================================
-
-    // Entidades PURCHASES y PURCHASE_DETAILS [cite: 1, 5]
-    // Usamos resource para la maestra de compras
-    Route::resource('purchases', PurchaseController::class);
+        // Entidad PRODUCT_PRICES (Historial de precios) [cite: 1]
+        Route::resource('prices', ProductPriceController::class)->except(['edit', 'update', 'destroy'])->names('product_prices');
+    });
 
 
     // =======================================================================
-    // 3. FLUJO DE SALIDA (SOLICITUDES Y CONSUMO) [cite: 18]
+    // 2. FLUJOS DE TRABAJO (Prefijo: /flows)
+    // Coincide con la estructura de vistas: resources/views/flows/...
     // =======================================================================
+    Route::prefix('flows')->name('flows.')->group(function () {
 
-    // Entidades REQUESTS y REQUEST_DETAILS [cite: 1]
-    Route::resource('requests', RequestController::class);
+        // FLUJO DE ENTRADA: PURCHASES [cite: 12]
+        Route::resource('purchases', PurchaseController::class); 
 
-    // Entidad REQUEST_APPROVALS (Relación 1:1 con requests) [cite: 1]
-    // Usamos un resource simple para la gestión de aprobaciones
-    Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);
+        // FLUJO DE SALIDA: REQUESTS (Maestra) [cite: 18]
+        Route::resource('requests', RequestController::class);
 
-    // Entidad REQUEST_DELIVERY_DETAILS (Entrega final que RESTA stock) [cite: 1]
-    // Usamos un resource simple para la gestión de entregas
-    Route::resource('deliveries', DeliveryController::class)->only(['index', 'create', 'store', 'show']);
+        // APROBACIONES (Relación 1:1 con requests) [cite: 1]
+        Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);
 
-    // Entidad KIT_USAGES (Registro de uso individual) [cite: 1]
-    // Generalmente solo se listan (index) y se registran (store)
-    Route::resource('kit_usages', KitUsageController::class)->only(['index', 'create', 'store']);
+        // ENTREGAS (Salida final que resta stock) [cite: 1]
+        Route::resource('deliveries', DeliveryController::class)->only(['index', 'create', 'store', 'show']);
+
+        // USO DE KITS (Registro de consumo) [cite: 1]
+        Route::resource('kit-usages', KitUsageController::class)->only(['index', 'create', 'store'])->names('kit_usages');
+    });
 
 
     // =======================================================================
-    // 4. MÓDULOS MAESTROS Y CONFIGURACIÓN
+    // 3. MÓDULOS MAESTROS Y CONFIGURACIÓN (Prefijo: /admin)
+    // Coincide con la estructura de vistas: resources/views/admin/...
     // =======================================================================
+    Route::prefix('admin')->name('admin.')->group(function () {
+        
+        // Entidad USERS (Gestión de usuarios) [cite: 1, 5]
+        Route::resource('users', UserController::class);
 
-    // Entidad SUPPLIERS [cite: 1, 5]
-    Route::resource('suppliers', SupplierController::class);
-
-    // Entidad LOCATIONS [cite: 1, 5]
-    Route::resource('locations', LocationController::class);
-
-    // Entidad CATEGORIES [cite: 1, 5]
-    Route::resource('categories', CategoryController::class);
-
-    // Entidad UNITS [cite: 1, 5]
-    Route::resource('units', UnitController::class);
-
-    // Entidad USERS (Para la gestión de usuarios, roles y permisos) [cite: 1, 5]
-    Route::resource('users', UserController::class);
-
+        // Entidades Maestras (SUPPLIERS, LOCATIONS, CATEGORIES, UNITS) [cite: 1, 5]
+        Route::resource('suppliers', SupplierController::class);
+        Route::resource('locations', LocationController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::resource('units', UnitController::class);
+    });
 });
