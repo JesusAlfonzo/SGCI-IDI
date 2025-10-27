@@ -6,23 +6,23 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePurchaseDetailRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            // Los IDs de compra y producto no deben cambiar.
+            'purchase_id' => ['prohibited'],
+            'product_id' => ['prohibited'],
+            
+            // Atributos que pueden ser modificados administrativamente
+            'quantity_received' => ['sometimes', 'required', 'integer', 'min:1'],
+            'unit_price' => ['sometimes', 'required', 'numeric', 'min:0.01'],
+            'lot_number' => ['nullable', 'string', 'max:100'],
+            'expiration_date' => ['nullable', 'date', 'after_or_equal:today'],
         ];
     }
 }

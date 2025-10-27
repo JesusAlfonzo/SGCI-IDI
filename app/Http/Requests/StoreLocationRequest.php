@@ -6,23 +6,17 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreLocationRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        // Solo administradores y superiores deben poder crear maestros.
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            // El nombre de la ubicación debe ser requerido y único.
+            'name' => ['required', 'string', 'max:100', 'unique:locations'], 
         ];
     }
 }

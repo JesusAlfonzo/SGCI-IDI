@@ -3,26 +3,28 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRequestRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        $statusOptions = ['Pendiente', 'Aprobada', 'Rechazada', 'Entregada', 'Cancelada'];
+
         return [
-            //
+            'requested_by_user_id' => ['sometimes', 'required', 'exists:users,id'],
+            'delivery_location_id' => ['sometimes', 'required', 'exists:locations,id'],
+            
+            'reason' => ['sometimes', 'required', 'string', 'max:500'],
+            'expected_date' => ['sometimes', 'required', 'date', 'after_or_equal:today'],
+            
+            // La actualización del estado solo puede ser hecha por roles de gestión/aprobación.
+            'status' => ['sometimes', 'required', 'string', Rule::in($statusOptions)], 
         ];
     }
 }

@@ -3,26 +3,34 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePurchaseRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
+        // Obtiene el ID de la compra que se está actualizando
+        $purchaseId = $this->route('purchase'); 
+
         return [
-            //
+            // purchase_code debe ser único, excluyendo el registro actual.
+            'purchase_code' => [
+                'sometimes', 
+                'required', 
+                'string', 
+                'max:100', 
+                Rule::unique('purchases')->ignore($purchaseId),
+            ], 
+            
+            // Campos opcionales para actualizar
+            'purchase_date' => ['sometimes', 'required', 'date'],
+            'supplier_id' => ['sometimes', 'required', 'exists:suppliers,id'], 
+            'registered_by_user_id' => ['sometimes', 'required', 'exists:users,id'], 
         ];
     }
 }

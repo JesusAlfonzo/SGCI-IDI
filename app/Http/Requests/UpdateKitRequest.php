@@ -6,23 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateKitRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            // total_usages es el contador que puede necesitar ajustes administrativos.
+            'total_usages' => ['sometimes', 'required', 'integer', 'min:1'],
+            
+            // El product_id no se actualiza en la relación 1:1 una vez creado.
+            'product_id' => ['prohibited'], // Opcional: para evitar su inclusión accidental en el update
         ];
     }
 }

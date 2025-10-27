@@ -6,23 +6,25 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StorePurchaseDetailRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
-        return false;
+        // Solo roles que pueden registrar entradas.
+        return true; 
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
-            //
+            // FK al encabezado de la compra.
+            'purchase_id' => ['required', 'exists:purchases,id'],
+            // FK al producto.
+            'product_id' => ['required', 'exists:products,id'],
+            
+            // Atributos de detalle
+            'quantity_received' => ['required', 'integer', 'min:1'], // La cantidad recibida.
+            'unit_price' => ['required', 'numeric', 'min:0.01'], // El precio de la unidad comprada.
+            'lot_number' => ['nullable', 'string', 'max:100'], // Número de lote.
+            'expiration_date' => ['nullable', 'date', 'after_or_equal:today'], // Fecha de vencimiento.
         ];
     }
 }
