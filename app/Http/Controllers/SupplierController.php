@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Supplier;
 use App\Http\Requests\StoreSupplierRequest;
 use App\Http\Requests\UpdateSupplierRequest;
 
@@ -14,56 +15,70 @@ class SupplierController extends Controller
         $this->middleware('role:Administrador|Super Administrador');
     }
 
+    /**
+     * Muestra una lista de proveedores.
+     */
     public function index()
     {
-        return "✅ Acceso permitido. Index de [Maestro] (Administrador/Super Administrador)";
+        $suppliers = Supplier::orderBy('name')->paginate(10); 
+        return view('admin.suppliers.index', compact('suppliers')); 
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear un nuevo proveedor.
      */
     public function create()
     {
-        //
+        // Opciones de Prioridad para el ENUM (Ejemplo basado en el diccionario: A, B, C)
+        $priorities = ['A', 'B', 'C'];
+        return view('admin.suppliers.create', compact('priorities'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena un proveedor recién creado.
      */
     public function store(StoreSupplierRequest $request)
     {
-        //
+        Supplier::create($request->validated());
+
+        return redirect()->route('admin.suppliers.index')->with('success', 'Proveedor creado exitosamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el formulario para editar el proveedor especificado.
      */
-    public function show(string $id)
+    public function edit(Supplier $supplier)
     {
-        //
+        // Opciones de Prioridad
+        $priorities = ['A', 'B', 'C'];
+        return view('admin.suppliers.edit', compact('supplier', 'priorities'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Actualiza el proveedor especificado.
      */
-    public function edit(string $id)
+    public function update(UpdateSupplierRequest $request, Supplier $supplier)
     {
-        //
+        $supplier->update($request->validated());
+
+        return redirect()->route('admin.suppliers.index')->with('success', 'Proveedor actualizado exitosamente.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Elimina el proveedor especificado.
      */
-    public function update(UpdateSupplierRequest $request, $id)
+    public function destroy(Supplier $supplier)
     {
-        //
-    }
+        try {
+            $supplier->delete();
+            $message = 'Proveedor eliminado exitosamente.';
+            $type = 'success';
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error si el proveedor está asociado a compras (FK Constraint)
+            $message = 'Error: No se puede eliminar el proveedor porque está asociado a registros de compras.';
+            $type = 'error';
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('admin.suppliers.index')->with($type, $message);
     }
 }

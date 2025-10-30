@@ -11,9 +11,16 @@ class Supplier extends Model
 
     protected $fillable = [
         'name',
-        'contact_person',
-        'phone',
-        'email',
-        // Otros campos necesarios de tu tabla suppliers
+        'priority',  // Asumido del diccionario (ENUM)
+        'phone',     // Campo de contacto
+        'email',     // Campo de contacto
+        'contact_person', // Persona de contacto
+        // Agrega otros campos de tu tabla 'suppliers' si existen (ej. address, rfc)
     ];
+
+    // Relaciones (A futuro: un proveedor tiene muchas compras)
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
 }

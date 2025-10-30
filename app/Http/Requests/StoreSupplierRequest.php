@@ -3,27 +3,47 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rule; // Necesario para la regla ENUM
 
 class StoreSupplierRequest extends FormRequest
 {
+    /**
+     * Determina si el usuario está autorizado a hacer esta solicitud.
+     */
     public function authorize(): bool
     {
-        // Solo administradores y superiores deben poder gestionar proveedores.
-        return true; 
+        return true; // Asume que si llega aquí, ya pasó el middleware 'auth'
     }
 
+    /**
+     * Obtiene las reglas de validación que se aplican a la solicitud.
+     */
     public function rules(): array
     {
-        // El campo priority clasifica al proveedor (AB, C, D)[cite: 1].
-        $priorityOptions = ['A', 'B', 'C', 'D'];
-
         return [
-            // El nombre debe ser requerido y único en la tabla suppliers.
-            'name' => ['required', 'string', 'max:255', 'unique:suppliers'], 
+            // Campos que SÍ se estaban guardando (Ejemplo de reglas)
+            'name' => ['required', 'string', 'max:255', 'unique:suppliers,name'],
+            'priority' => ['required', Rule::in(['A', 'B', 'C'])], // Ajusta A, B, C a tus valores ENUM
+
+            // 🔑 CORRECCIÓN: Agregar los campos de Contacto
+            'contact_person' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'email' => ['nullable', 'email', 'max:255', 'unique:suppliers,email'],
             
-            // Priority es un ENUM, lo hacemos requerido y validamos que esté en las opciones.
-            'priority' => ['required', 'string', Rule::in($priorityOptions)],
+            // Agrega aquí cualquier otro campo que tenga tu tabla suppliers (ej. address)
+        ];
+    }
+
+    /**
+     * Mensajes personalizados para las reglas de validación.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'Este nombre de proveedor ya existe.',
+            'priority.in' => 'La prioridad seleccionada no es válida.',
+            'email.email' => 'El formato del correo electrónico no es válido.',
+            'email.unique' => 'Este correo electrónico ya está registrado en otro proveedor.',
         ];
     }
 }
