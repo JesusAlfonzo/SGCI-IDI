@@ -12,4 +12,10 @@ class Unit extends Model
     protected $fillable = [
         'name',
     ];
+
+    // Opcional: Relación con productos (Many-to-One)
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }
