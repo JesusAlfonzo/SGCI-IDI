@@ -20,6 +20,7 @@ class StoreProductRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'sku' => ['required', 'string', 'max:50', 'unique:products'], // sku es único[cite: 5].
             'stock_minimo' => ['required', 'integer', 'min:0'], // Stock mínimo requerido[cite: 5].
+            'description' => ['nullable', 'string'],
             
             // Claves Foráneas (FKs) 
             'category_id' => ['required', 'exists:categories,id'],
