@@ -10,6 +10,12 @@ class Location extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'name', // Ej. Estante A, Refrigerador B, Almacén Central
     ];
+
+    // Relaciones (A futuro: una ubicación puede tener muchos productos)
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

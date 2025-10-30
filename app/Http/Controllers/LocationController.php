@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
@@ -14,56 +15,69 @@ class LocationController extends Controller
         $this->middleware('role:Administrador|Super Administrador');
     }
 
+   /**
+     * Muestra una lista de ubicaciones.
+     */
     public function index()
     {
-        return "✅ Acceso permitido. Index de [Maestro] (Administrador/Super Administrador)";
+        $locations = Location::orderBy('name')->paginate(10); 
+        // La ruta de la vista es 'admin.locations.index'
+        return view('admin.locations.index', compact('locations')); 
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear una nueva ubicación.
      */
     public function create()
     {
-        //
+        return view('admin.locations.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Almacena una ubicación recién creada.
      */
     public function store(StoreLocationRequest $request)
     {
-        //
+        // El request debe validar que 'name' sea único
+        Location::create($request->validated());
+
+        return redirect()->route('admin.locations.index')->with('success', 'Ubicación creada exitosamente.');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra el formulario para editar la ubicación especificada.
      */
-    public function show(string $id)
+    public function edit(Location $location)
     {
-        //
+        return view('admin.locations.edit', compact('location'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Actualiza la ubicación especificada.
      */
-    public function edit(string $id)
+    public function update(UpdateLocationRequest $request, Location $location)
     {
-        //
+        // El request debe validar que 'name' sea único, ignorando el ID actual
+        $location->update($request->validated());
+
+        return redirect()->route('admin.locations.index')->with('success', 'Ubicación actualizada exitosamente.');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Elimina la ubicación especificada.
      */
-    public function update(UpdateLocationRequest $request, $id)
+    public function destroy(Location $location)
     {
-        //
-    }
+        try {
+            $location->delete();
+            $message = 'Ubicación eliminada exitosamente.';
+            $type = 'success';
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Error si la ubicación está asociada a productos (FK Constraint)
+            $message = 'Error: No se puede eliminar la ubicación porque tiene productos asociados.';
+            $type = 'error';
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('admin.locations.index')->with($type, $message);
     }
 }
