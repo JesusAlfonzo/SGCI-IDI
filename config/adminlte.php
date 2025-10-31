@@ -342,12 +342,12 @@ return [
         'submenu' => [
             [
                 'text' => 'Registrar Compra',
-                'route' => 'flows.purchases.create', // ¡CORREGIDO!
+                'route' => 'flows.purchases.create', 
                 'icon' => 'fas fa-fw fa-plus-circle',
             ],
             [
                 'text' => 'Historial de Entradas',
-                'route' => 'flows.purchases.index', // ¡CORREGIDO!
+                'route' => 'flows.purchases.index', 
                 'icon' => 'fas fa-fw fa-list-alt',
             ],
         ],
@@ -359,23 +359,23 @@ return [
         'submenu' => [
             [
                 'text' => 'Mis Solicitudes',
-                'route' => 'flows.requests.index', // ¡CORREGIDO!
+                'route' => 'flows.requests.index', 
                 'icon' => 'fas fa-fw fa-paper-plane',
             ],
             [
                 'text' => 'Aprobaciones',
-                'route' => 'flows.approvals.index', // ¡CORREGIDO!
+                'route' => 'flows.approvals.index', 
                 'icon' => 'fas fa-fw fa-user-check',
             ],
             [
                 'text' => 'Entregas (Consumo)',
-                'route' => 'flows.deliveries.index', // ¡CORREGIDO!
+                'route' => 'flows.deliveries.index', 
                 'icon' => 'fas fa-fw fa-handshake',
             ],
             [
                 // Nota: Usamos kit_usages.index por la convención de 'names' en web.php
                 'text' => 'Uso de Kits',
-                'route' => 'flows.kit_usages.index', // ¡CORREGIDO!
+                'route' => 'flows.kit_usages.index', 
                 'icon' => 'fas fa-fw fa-flask',
             ],
         ],
@@ -393,22 +393,22 @@ return [
         'submenu' => [
             [
                 'text' => 'Proveedores',
-                'route' => 'admin.suppliers.index', // ¡CORREGIDO!
+                'route' => 'admin.suppliers.index', 
                 'icon' => 'fas fa-fw fa-address-book',
             ],
             [
                 'text' => 'Ubicaciones',
-                'route' => 'admin.locations.index', // ¡CORREGIDO!
+                'route' => 'admin.locations.index', 
                 'icon' => 'fas fa-fw fa-map-marker-alt',
             ],
             [
                 'text' => 'Categorías',
-                'route' => 'admin.categories.index', // ¡CORREGIDO!
+                'route' => 'admin.categories.index', 
                 'icon' => 'fas fa-fw fa-layer-group',
             ],
             [
                 'text' => 'Unidades de Medida',
-                'route' => 'admin.units.index', // ¡CORREGIDO!
+                'route' => 'admin.units.index', 
                 'icon' => 'fas fa-fw fa-ruler-combined',
             ],
         ],
