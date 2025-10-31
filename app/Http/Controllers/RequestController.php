@@ -51,6 +51,8 @@ class RequestController extends Controller
     public function store(StoreRequestRequest $request)
     {
         $validatedData = $request->validated();
+
+        dd($validatedData);
         
         DB::beginTransaction();
 
@@ -87,11 +89,15 @@ class RequestController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Muestra los detalles de una solicitud específica.
      */
     public function show(string $id)
     {
-        //
+        // Cargar la solicitud junto con sus detalles y el usuario solicitante
+        $materialRequest = RequestModel::with(['details.product.unit', 'requestedBy'])
+                                       ->findOrFail($id);
+
+        return view('flows.requests.show', compact('materialRequest'));
     }
 
     /**

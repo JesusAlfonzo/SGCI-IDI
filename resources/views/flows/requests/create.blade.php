@@ -71,11 +71,12 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- Fila PLAntilla CLONADA (oculta al inicio) --}}
+                            {{-- Fila PLantilla CLONADA (oculta al inicio) --}}
+                            {{-- Esta fila usa el índice [0] para ser un placeholder seguro --}}
                             <tr id="detail-row-template" style="display: none;">
                                 <td>
-                                    {{-- Estos campos DEBEN usar el índice [0] --}}
-                                    <select name="details[0][product_id]" class="form-control product-select"> 
+                                    {{-- **IMPORTANTE**: Estos campos están deshabilitados en JS al inicio y al submit --}}
+                                    <select name="details[0][product_id]" class="form-control product-select" disabled> 
                                         <option value="">Seleccione Producto</option>
                                         @foreach ($products as $product)
                                             <option 
@@ -90,7 +91,7 @@
                                 <td class="text-center"><span class="current-stock">-</span></td>
                                 <td><span class="product-unit">N/A</span></td>
                                 <td>
-                                    <input type="number" name="details[0][quantity_requested]" class="form-control quantity-input" min="1">
+                                    <input type="number" name="details[0][quantity_requested]" class="form-control quantity-input" min="1" disabled>
                                 </td>
                                 <td class="text-center">
                                     <button type="button" class="btn btn-danger btn-sm remove-detail-row" style="display:none;">
@@ -126,13 +127,19 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            let rowCounter = 0;
+            // Inicializar el contador en 0. Será incrementado a 1 para la primera fila clonada.
+            let rowCounter = 0; 
             const $tableBody = $('#product_details_table tbody');
             const $templateRow = $('#detail-row-template');
 
+            // 🔑 CORRECCIÓN CLAVE 1: Deshabilitar permanentemente los inputs de la plantilla base [0]
+            // para que nunca se envíen datos vacíos de la fila oculta.
+            $templateRow.find('select, input').prop('disabled', true);
+
+
             // 1. Función para añadir una nueva fila de detalle
             function addRow() {
-                rowCounter++;
+                rowCounter++; // Ahora el primer índice válido es 1 (details[1])
                 const newRow = $templateRow.clone(); 
                 
                 // Limpiar y actualizar atributos de la nueva fila
@@ -141,12 +148,19 @@
                 newRow.find('.current-stock').text('-');
                 newRow.find('.product-unit').text('N/A');
                 
-                // Mostrar la nueva fila y limpiar estilos (CLAVE)
+                // Mostrar la nueva fila y limpiar estilos
                 newRow.show(); 
                 
-                // Actualizar name attributes con el nuevo contador y AÑADIR REQUIRED
-                newRow.find('.product-select').attr('name', `details[${rowCounter}][product_id]`).prop('required', true); 
-                newRow.find('.quantity-input').attr('name', `details[${rowCounter}][quantity_requested]`).prop('required', true); 
+                // 🔑 CORRECCIÓN CLAVE 2: Asignar el nuevo índice al atributo 'name' y HABILITAR el input
+                newRow.find('.product-select')
+                    .attr('name', `details[${rowCounter}][product_id]`)
+                    .prop('required', true)
+                    .prop('disabled', false); // HABILITAR
+                    
+                newRow.find('.quantity-input')
+                    .attr('name', `details[${rowCounter}][quantity_requested]`)
+                    .prop('required', true)
+                    .prop('disabled', false); // HABILITAR
                 
                 // Mostrar botón de eliminar y adjuntar el evento
                 newRow.find('.remove-detail-row').show().on('click', function() {
@@ -157,10 +171,9 @@
             }
 
             // 2. Inicialización: Solo añadir una fila inicial
-            if ($tableBody.find('tr').length === 1) { 
-                addRow();
-            }
-
+            // El contador iniciará en 0, el primer addRow() lo pondrá en 1 y generará details[1]
+            addRow(); 
+            
             // 3. Manejador para añadir filas al hacer clic en el botón
             $('#add-detail-row').on('click', function(e) {
                 e.preventDefault();
@@ -171,7 +184,7 @@
             $tableBody.on('change', '.product-select', function() {
                 const $selectedOption = $(this).find('option:selected');
                 const $row = $(this).closest('tr');
-                const stock = $selectedOption.data('stock');
+                const stock = parseInt($selectedOption.data('stock'));
                 const unit = $selectedOption.data('unit');
 
                 $row.find('.current-stock').text(stock || '-');
@@ -179,33 +192,35 @@
                 
                 const $quantityInput = $row.find('.quantity-input');
                 $quantityInput.val(1).attr('max', stock);
+
+                // Si se selecciona un producto, la cantidad es requerida (aunque ya lo pusimos en addRow)
+                if ($(this).val()) {
+                    $quantityInput.prop('required', true);
+                }
             });
             
             // 5. Manejador de la validación y ENVÍO
             $('#requestForm').on('submit', function(e) {
-                // 🔑 PASO CLAVE: Deshabilitar los campos de la fila plantilla (details[0])
-                const $templateInputs = $templateRow.find('input, select');
-                $templateInputs.prop('disabled', true); 
-                
+                // Ya no necesitamos deshabilitar la plantilla aquí, se hace al inicio.
                 let hasError = false;
                 
-                // Validar que haya al menos una fila REAL de detalle
-                if ($tableBody.find('tr').not('#detail-row-template').length === 0) {
+                // Validar que haya al menos una fila REAL de detalle (todas excepto la plantilla)
+                if ($tableBody.find('tr:visible').length === 0) {
                     alert('Debe añadir al menos un producto a la solicitud.');
                     hasError = true;
                     e.preventDefault();
                 }
                 
                 // Validación de stock (UX)
-                $tableBody.find('tr').not('#detail-row-template').each(function() {
+                $tableBody.find('tr:visible').each(function() {
                     const $select = $(this).find('.product-select');
                     const $input = $(this).find('.quantity-input');
                     
                     const stock = parseInt($select.find('option:selected').data('stock'));
                     const requested = parseInt($input.val());
 
-                    if (requested > stock) {
-                        alert(`Error: La cantidad solicitada (${requested}) excede el stock actual (${stock}).`);
+                    if ($select.val() && requested > stock) {
+                        alert(`Error: La cantidad solicitada (${requested}) excede el stock actual (${stock}) para el producto seleccionado.`);
                         $input.addClass('is-invalid');
                         hasError = true;
                         e.preventDefault();
@@ -216,13 +231,11 @@
                 });
 
                 if (hasError) {
-                    // Si falla la validación JS, previene el envío y reactiva los inputs
                     e.preventDefault();
-                    $templateInputs.prop('disabled', false); 
                     $tableBody.find('.is-invalid:first').focus();
                 }
-
-                // Si no hay errores, el formulario se envía con la fila [0] deshabilitada.
+                
+                // Si no hay errores, el formulario se envía.
             });
         });
     </script>
