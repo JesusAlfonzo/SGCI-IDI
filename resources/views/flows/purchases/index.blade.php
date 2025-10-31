@@ -8,14 +8,13 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            {{-- RUTA CORREGIDA: flows.purchases.create --}}
             <a href="{{ route('flows.purchases.create') }}" class="btn btn-success float-right">
                 <i class="fas fa-plus"></i> Registrar Nueva Compra
             </a>
             <h3 class="card-title">Historial de Compras</h3>
         </div>
         <div class="card-body">
-            
+
             {{-- Mensajes de Session --}}
             @if (session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -46,7 +45,8 @@
                             <td>
                                 {{-- Botón SHOW para ver detalles --}}
                                 {{-- NOTA: Este botón no está funcional sin la ruta 'show' --}}
-                                <a href="#" class="btn btn-xs btn-default text-info mx-1 shadow" title="Ver Detalles">
+                                <a href="{{ route('flows.purchases.show', $purchase) }}"
+                                    class="btn btn-xs btn-default text-info mx-1 shadow" title="Ver Detalles">
                                     <i class="fa fa-lg fa-fw fa-eye"></i>
                                 </a>
                             </td>
@@ -55,9 +55,9 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="card-footer clearfix">
-            {{ $purchases->links() }} 
+            {{ $purchases->links() }}
         </div>
     </div>
 @stop

@@ -32,4 +32,10 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchaseDetail::class);
     }
+
+    public function registeredBy()
+    {
+        // Asume que el modelo de usuario es App\Models\User y la clave foránea es 'registered_by_user_id'
+        return $this->belongsTo(User::class, 'registered_by_user_id');
+    }
 }

@@ -23,7 +23,7 @@ use App\Http\Controllers\HomeController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function(){
+Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
 
@@ -40,14 +40,14 @@ Route::middleware(['auth'])->group(function () {
     // Coincide con la estructura de vistas: resources/views/inventory/...
     // =======================================================================
     Route::prefix('inventory')->name('inventory.')->group(function () {
-        
-        // Entidad PRODUCTS [cite: 1]
-        Route::resource('products', ProductController::class); 
 
-        // Entidad KITS (Extensión de productos) [cite: 1]
+        // Entidad PRODUCTS 
+        Route::resource('products', ProductController::class);
+
+        // Entidad KITS (Extensión de productos) 
         Route::resource('kits', KitController::class)->except(['show']);
 
-        // Entidad PRODUCT_PRICES (Historial de precios) [cite: 1]
+        // Entidad PRODUCT_PRICES (Historial de precios) 
         Route::resource('prices', ProductPriceController::class)->except(['edit', 'update', 'destroy'])->names('product_prices');
     });
 
@@ -58,19 +58,19 @@ Route::middleware(['auth'])->group(function () {
     // =======================================================================
     Route::prefix('flows')->name('flows.')->group(function () {
 
-        // FLUJO DE ENTRADA: PURCHASES [cite: 12]
-        Route::resource('purchases', PurchaseController::class); 
+        // FLUJO DE ENTRADA: PURCHASES 
+        Route::resource('purchases', PurchaseController::class);
 
-        // FLUJO DE SALIDA: REQUESTS (Maestra) [cite: 18]
+        // FLUJO DE SALIDA: REQUESTS (Maestra) 
         Route::resource('requests', RequestController::class);
 
-        // APROBACIONES (Relación 1:1 con requests) [cite: 1]
+        // APROBACIONES (Relación 1:1 con requests) 
         Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);
 
-        // ENTREGAS (Salida final que resta stock) [cite: 1]
+        // ENTREGAS (Salida final que resta stock) 
         Route::resource('deliveries', DeliveryController::class)->only(['index', 'create', 'store', 'show']);
 
-        // USO DE KITS (Registro de consumo) [cite: 1]
+        // USO DE KITS (Registro de consumo) 
         Route::resource('kit-usages', KitUsageController::class)->only(['index', 'create', 'store'])->names('kit_usages');
     });
 
@@ -80,11 +80,11 @@ Route::middleware(['auth'])->group(function () {
     // Coincide con la estructura de vistas: resources/views/admin/...
     // =======================================================================
     Route::prefix('admin')->name('admin.')->group(function () {
-        
-        // Entidad USERS (Gestión de usuarios) [cite: 1, 5]
+
+        // Entidad USERS (Gestión de usuarios)
         Route::resource('users', UserController::class);
 
-        // Entidades Maestras (SUPPLIERS, LOCATIONS, CATEGORIES, UNITS) [cite: 1, 5]
+        // Entidades Maestras (SUPPLIERS, LOCATIONS, CATEGORIES, UNITS)
         Route::resource('suppliers', SupplierController::class);
         Route::resource('locations', LocationController::class);
         Route::resource('categories', CategoryController::class);

@@ -9,20 +9,19 @@ class PurchaseDetail extends Model
 {
     use HasFactory;
 
+    // Nombre de la tabla, si es diferente del plural por defecto
+    protected $table = 'purchase_details';
+
     protected $fillable = [
         'purchase_id',
         'product_id',
         'quantity',
         'unit_cost',
+        'unit_purchase_price',  
         'total_detail',
     ];
 
-    protected $casts = [
-        'quantity' => 'integer',
-        'unit_cost' => 'decimal:4', 
-        'total_detail' => 'decimal:2',
-    ];
-
+    // Relaciones
     public function purchase()
     {
         return $this->belongsTo(Purchase::class);

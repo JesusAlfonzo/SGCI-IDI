@@ -14,6 +14,7 @@ class ProductPrice extends Model
         'price',
         'recorded_at',
         'is_latest',
+        'supplier_id',
     ];
 
     protected $casts = [
@@ -21,9 +22,9 @@ class ProductPrice extends Model
         'is_latest' => 'boolean',
         'recorded_at' => 'datetime',
     ];
-    
+
     // El diccionario no menciona created_at/updated_at, así que los deshabilitamos por simplicidad
-    public $timestamps = false; 
+    public $timestamps = false;
 
     public function product()
     {
