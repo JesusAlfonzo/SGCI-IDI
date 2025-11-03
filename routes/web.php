@@ -6,7 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\KitController;
 use App\Http\Controllers\ProductPriceController;
 use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\RequestController;
+use App\Http\Controllers\RequestController; // ¡Asegúrate de que este import esté presente!
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\KitUsageController;
@@ -63,6 +63,10 @@ Route::middleware(['auth'])->group(function () {
 
         // FLUJO DE SALIDA: REQUESTS (Maestra) 
         Route::resource('requests', RequestController::class);
+        
+        // RUTAS AÑADIDAS: APROBACIÓN Y RECHAZO DE SOLICITUDES
+        Route::post('requests/{materialRequest}/approve', [RequestController::class, 'approve'])->name('requests.approve');
+        Route::post('requests/{materialRequest}/reject', [RequestController::class, 'reject'])->name('requests.reject');
 
         // APROBACIONES (Relación 1:1 con requests) 
         Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);

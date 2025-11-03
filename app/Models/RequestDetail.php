@@ -18,6 +18,7 @@ class RequestDetail extends Model
         'product_id',
         'quantity_requested',
         'quantity_delivered', // Incluir este campo si lo tienes en la migración
+        
     ];
 
     // 🔑 RELACIONES
@@ -36,5 +37,14 @@ class RequestDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    /**
+     * Relación con los detalles de entrega asociados a este ítem.
+     * Esta relación es NECESARIA para el DeliveryController::show.
+     */
+    public function deliveryDetails()
+    {
+        return $this->hasMany(RequestDeliveryDetail::class, 'request_detail_id');
     }
 }
