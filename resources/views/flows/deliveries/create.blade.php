@@ -2,7 +2,7 @@
 
 @section('title', 'Registro de Entrega | Pendientes')
 @section('content_header')
-    <h1>Bandeja de Entregas Pendientes</h1>
+    <h1 class="m-0 text-dark">Bandeja de Entregas Pendientes</h1>
 @stop
 
 @section('content')
@@ -26,7 +26,7 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            {{-- 1. Si no hay solicitudes pendientes, mostrar un mensaje --}}
+            {{-- Usamos $requestList del DeliveryController@create --}}
             @if ($requestList->isEmpty())
                 <div class="alert alert-info text-center">
                     <i class="fas fa-check-circle"></i> ¡Felicidades! No hay solicitudes aprobadas pendientes de entrega.
@@ -38,7 +38,7 @@
                     
                     <div class="form-group">
                         <label for="request_id">Seleccionar Solicitud Aprobada:</label>
-                        {{-- La variable $requestList viene del DeliveryController@create --}}
+                        {{-- USAMOS SELECT ESTÁNDAR (sin select2) --}}
                         <select name="request_id" id="request_id" class="form-control" required>
                             <option value="">-- Selecciona una Solicitud --</option>
                             @foreach ($requestList as $request)
@@ -60,14 +60,14 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-lg mt-3">
+                    <button type="submit" class="btn btn-success btn-lg mt-3" 
+                        onclick="return confirm('¿Está seguro de registrar la entrega para la solicitud seleccionada? Esto afectará el historial.');">
                         <i class="fas fa-truck"></i> Registrar Entrega y Finalizar Solicitud
                     </button>
                 </form>
 
-                {{-- Opcional: Mostrar la lista de solicitudes aprobadas aquí mismo como una tabla para mayor detalle --}}
-                <h4 class="mt-5">Detalles de Solicitudes Pendientes</h4>
-                <p>Las siguientes solicitudes están listas para ser entregadas (Stock reservado).</p>
+                <h4 class="mt-5">Detalles de Solicitudes Pendientes (Aprobadas)</h4>
+                <p>Las siguientes solicitudes están listas para ser entregadas.</p>
                 <table class="table table-sm table-striped mt-3">
                     <thead>
                         <tr>
@@ -75,20 +75,30 @@
                             <th>Solicitante</th>
                             <th>Propósito</th>
                             <th>Fecha Aprobación</th>
+                            <th>Acción</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Usamos $requestList para mostrar detalles abajo --}}
                         @foreach ($requestList as $request)
                             <tr>
                                 <td>{{ $request['code'] }}</td>
                                 <td>{{ $request['requester'] }}</td>
-                                <td>{{ \App\Models\RequestModel::find($request['id'])->purpose ?? 'Sin propósito' }}</td>
-                                <td>{{ \App\Models\RequestModel::find($request['id'])->approval_date ? \App\Models\RequestModel::find($request['id'])->approval_date->format('d/m/Y') : 'N/A' }}</td>
+                                {{-- Usamos el helper find para obtener datos adicionales del RequestModel --}}
+                                @php
+                                    // Asumiendo que RequestModel se puede encontrar globalmente o se importa en el controlador
+                                    $fullRequest = \App\Models\RequestModel::find($request['id']);
+                                @endphp
+                                <td>{{ \Illuminate\Support\Str::limit($fullRequest->purpose ?? 'N/A', 40) }}</td>
+                                <td>{{ $fullRequest->approval_date ? $fullRequest->approval_date->format('d/m/Y') : 'N/A' }}</td>
+                                <td>
+                                    {{-- Enlace para ver los detalles completos de la solicitud (Asumiendo que esta ruta existe) --}}
+                                    <a href="{{ route('flows.requests.show', $fullRequest->id) }}" class="btn btn-xs btn-info">Ver Solicitud</a>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
-
             @endif
         </div>
     </div>
