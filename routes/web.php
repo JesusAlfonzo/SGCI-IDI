@@ -65,8 +65,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('requests', RequestController::class);
         
         // RUTAS AÑADIDAS: APROBACIÓN Y RECHAZO DE SOLICITUDES
-        Route::post('requests/{materialRequest}/approve', [RequestController::class, 'approve'])->name('requests.approve');
-        Route::post('requests/{materialRequest}/reject', [RequestController::class, 'reject'])->name('requests.reject');
+        Route::post('requests/{materialRequest}/approve', [ApprovalController::class, 'approve'])->name('requests.approve');
+        Route::post('requests/{materialRequest}/reject', [ApprovalController::class, 'reject'])->name('requests.reject');
 
         // APROBACIONES (Relación 1:1 con requests) 
         Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);

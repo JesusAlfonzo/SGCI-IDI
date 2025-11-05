@@ -103,11 +103,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // **IMPORTANTE:** Este código asignará el rol 'Super Administrador' al primer usuario
         // que encuentre con este email. Asegúrate de que el usuario ya existe en la DB.
-        $user = User::where('email', 'pedro@gmail.com')->first();
+        $user = User::where('email', 'snw@admin.com')->first();
 
         if ($user) {
             // Asigna el rol de máximo nivel
-            $user->assignRole('Solicitante');
+            $user->assignRole('Super Administrador');
         } else {
             // Opcional: Crear el usuario si no existe
             // User::firstOrCreate([

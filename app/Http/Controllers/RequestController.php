@@ -133,93 +133,93 @@ class RequestController extends Controller
     /**
      * Marca la solicitud como APROBADA y descuenta el stock.
      */
-    public function approve(RequestModel $materialRequest)
-    {
-        // Solo procesar si está Pendiente
-        if ($materialRequest->status !== 'Pending') {
-            return redirect()->back()->with('error', 'La solicitud ya ha sido procesada.');
-        }
+    // public function approve(RequestModel $materialRequest)
+    // {
+    //     // Solo procesar si está Pendiente
+    //     if ($materialRequest->status !== 'Pending') {
+    //         return redirect()->back()->with('error', 'La solicitud ya ha sido procesada.');
+    //     }
 
-        DB::beginTransaction();
+    //     DB::beginTransaction();
 
-        try {
-            // CORRECCIÓN DE EFICIENCIA: Cargamos la relación del producto UNA SOLA VEZ antes del bucle.
-            $materialRequest->load('details.product'); 
-            $details = $materialRequest->details;
+    //     try {
+    //         // CORRECCIÓN DE EFICIENCIA: Cargamos la relación del producto UNA SOLA VEZ antes del bucle.
+    //         $materialRequest->load('details.product'); 
+    //         $details = $materialRequest->details;
             
-            foreach ($details as $detail) {
-                // El producto ya está cargado.
-                $product = $detail->product;
+    //         foreach ($details as $detail) {
+    //             // El producto ya está cargado.
+    //             $product = $detail->product;
                 
-                // Asegurar que el producto existe antes de operar
-                if (!$product) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', 'Error: Producto no encontrado en uno de los detalles.');
-                }
+    //             // Asegurar que el producto existe antes de operar
+    //             if (!$product) {
+    //                 DB::rollBack();
+    //                 return redirect()->back()->with('error', 'Error: Producto no encontrado en uno de los detalles.');
+    //             }
                 
-                // Verificar si hay suficiente stock
-                if ($product->stock_actual < $detail->quantity_requested) {
-                    DB::rollBack();
-                    Log::warning("Intento de aprobar solicitud con stock insuficiente.", [
-                        'request_id' => $materialRequest->id,
-                        'product_id' => $product->id,
-                        'stock_actual' => $product->stock_actual,
-                        'cantidad_solicitada' => $detail->quantity_requested,
-                    ]);
+    //             // Verificar si hay suficiente stock
+    //             if ($product->stock_actual < $detail->quantity_requested) {
+    //                 DB::rollBack();
+    //                 Log::warning("Intento de aprobar solicitud con stock insuficiente.", [
+    //                     'request_id' => $materialRequest->id,
+    //                     'product_id' => $product->id,
+    //                     'stock_actual' => $product->stock_actual,
+    //                     'cantidad_solicitada' => $detail->quantity_requested,
+    //                 ]);
                     
-                    return redirect()->back()->with('error', 'Error: Stock insuficiente para el producto ' . $product->name . '. Stock actual: ' . number_format($product->stock_actual, 0) . ', Solicitado: ' . number_format($detail->quantity_requested, 0));
-                }
+    //                 return redirect()->back()->with('error', 'Error: Stock insuficiente para el producto ' . $product->name . '. Stock actual: ' . number_format($product->stock_actual, 0) . ', Solicitado: ' . number_format($detail->quantity_requested, 0));
+    //             }
                 
-                // Descontar el stock y guardar
-                $product->stock_actual -= $detail->quantity_requested;
-                $product->save();
+    //             // Descontar el stock y guardar
+    //             $product->stock_actual -= $detail->quantity_requested;
+    //             $product->save();
 
-                // Actualizar la cantidad entregada en el detalle
-                $detail->quantity_delivered = $detail->quantity_requested;
-                $detail->save();
-            }
+    //             // Actualizar la cantidad entregada en el detalle
+    //             $detail->quantity_delivered = $detail->quantity_requested;
+    //             $detail->save();
+    //         }
 
-            // 2. Actualizar la cabecera de la Solicitud
-            $materialRequest->status = 'Approved';
-            $materialRequest->approved_by_user_id = Auth::id(); // Usa el ID del usuario actual
-            $materialRequest->approval_date = now(); 
-            $materialRequest->save();
+    //         // 2. Actualizar la cabecera de la Solicitud
+    //         $materialRequest->status = 'Approved';
+    //         $materialRequest->approved_by_user_id = Auth::id(); // Usa el ID del usuario actual
+    //         $materialRequest->approval_date = now(); 
+    //         $materialRequest->save();
 
-            DB::commit();
+    //         DB::commit();
 
-            return redirect()->route('flows.requests.show', $materialRequest)->with('success', 'Solicitud ' . $materialRequest->request_code . ' APROBADA y stock descontado exitosamente.');
+    //         return redirect()->route('flows.requests.show', $materialRequest)->with('success', 'Solicitud ' . $materialRequest->request_code . ' APROBADA y stock descontado exitosamente.');
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error("Fallo al aprobar solicitud. Mensaje: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return redirect()->back()->with('error', 'Error al aprobar la solicitud: ' . $e->getMessage());
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         Log::error("Fallo al aprobar solicitud. Mensaje: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    //         return redirect()->back()->with('error', 'Error al aprobar la solicitud: ' . $e->getMessage());
+    //     }
+    // }
 
-    /**
-     * Marca la solicitud como RECHAZADA.
-     */
-    public function reject(RequestModel $materialRequest)
-    {
-        // Solo procesar si está Pendiente
-        if ($materialRequest->status !== 'Pending') {
-            return redirect()->back()->with('error', 'La solicitud ya ha sido procesada.');
-        }
+    // /**
+    //  * Marca la solicitud como RECHAZADA.
+    //  */
+    // public function reject(RequestModel $materialRequest)
+    // {
+    //     // Solo procesar si está Pendiente
+    //     if ($materialRequest->status !== 'Pending') {
+    //         return redirect()->back()->with('error', 'La solicitud ya ha sido procesada.');
+    //     }
         
-        try {
-            // 1. Actualizar la cabecera de la Solicitud
-            $materialRequest->status = 'Rejected';
-            $materialRequest->approved_by_user_id = Auth::id(); // Guardamos quién la rechazó
-            $materialRequest->approval_date = now();
-            $materialRequest->save();
+    //     try {
+    //         // 1. Actualizar la cabecera de la Solicitud
+    //         $materialRequest->status = 'Rejected';
+    //         $materialRequest->approved_by_user_id = Auth::id(); // Guardamos quién la rechazó
+    //         $materialRequest->approval_date = now();
+    //         $materialRequest->save();
 
-            return redirect()->route('flows.requests.show', $materialRequest)->with('success', 'Solicitud ' . $materialRequest->request_code . ' RECHAZADA exitosamente.');
+    //         return redirect()->route('flows.requests.show', $materialRequest)->with('success', 'Solicitud ' . $materialRequest->request_code . ' RECHAZADA exitosamente.');
 
-        } catch (\Exception $e) {
-            Log::error("Fallo al rechazar solicitud. Mensaje: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
-            return redirect()->back()->with('error', 'Error al rechazar la solicitud: ' . $e->getMessage());
-        }
-    }
+    //     } catch (\Exception $e) {
+    //         Log::error("Fallo al rechazar solicitud. Mensaje: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    //         return redirect()->back()->with('error', 'Error al rechazar la solicitud: ' . $e->getMessage());
+    //     }
+    // }
 
     /**
      * Función auxiliar para obtener la información de estado.
