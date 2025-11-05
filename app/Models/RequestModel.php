@@ -45,6 +45,21 @@ class RequestModel extends Model
      * RELACIONES
      */
 
+    // 1. Relación para el personal de almacén que realizó la entrega
+    public function warehouseStaff()
+    {
+        // El nombre del método es 'warehouseStaff' (tal como lo usa el load)
+        // La columna en la tabla 'requests' es 'warehouse_staff_id'
+        return $this->belongsTo(User::class, 'warehouse_staff_id'); 
+    }
+
+    // 2. Relación para los detalles de la entrega (usado en el show)
+    public function deliveryDetails()
+    {
+        // Una solicitud tiene muchos detalles de entrega
+        return $this->hasMany(RequestDeliveryDetail::class, 'request_id');
+    }
+
     // Relación con el usuario que realiza la solicitud
     public function requestedBy()
     {

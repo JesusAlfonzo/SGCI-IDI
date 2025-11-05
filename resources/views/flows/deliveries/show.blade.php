@@ -71,7 +71,7 @@
                                     <td>
                                         <span class="badge badge-info">{{ number_format($detail->quantity_delivered, 0) }}</span>
                                     </td>
-                                    <td>{{ $detail->product->unit_of_measure ?? 'N/A' }}</td>
+                                    <td>{{ $detail->product->unit->name ?? 'N/A' }}</td>
                                 </tr>
                             @empty
                                 <tr>
