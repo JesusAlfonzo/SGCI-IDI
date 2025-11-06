@@ -24,17 +24,6 @@
                         </span>
                     @enderror
                 </div>
-                
-                {{-- Campo Descripción --}}
-                <div class="form-group">
-                    <label for="description">Descripción (Opcional)</label>
-                    <textarea name="description" class="form-control @error('description') is-invalid @enderror" id="description">{{ old('description') }}</textarea>
-                    @error('description')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                    @enderror
-                </div>
 
                 <a href="{{ route('admin.categories.index') }}" class="btn btn-default">Cancelar</a>
                 <button type="submit" class="btn btn-primary">Guardar Categoría</button>
