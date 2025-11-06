@@ -13,7 +13,7 @@
                     <h3 class="card-title">Listado de Cuentas del Sistema</h3>
                     <div class="card-tools">
                         {{-- 🛠️ NOTA: Redirigimos al formulario de registro de Laravel UI --}}
-                        <a href="{{ route('register') }}" class="btn btn-sm btn-primary">
+                        <a href="{{ route('admin.register') }}" class="btn btn-sm btn-primary">
                             <i class="fas fa-plus"></i> Crear Nuevo Usuario
                         </a>
                     </div>

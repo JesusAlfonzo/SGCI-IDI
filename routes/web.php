@@ -2,11 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Auth\RegisterController; // ¡Importante para redefinir el registro!
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\KitController;
 use App\Http\Controllers\ProductPriceController;
 use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\RequestController; // ¡Asegúrate de que este import esté presente!
+use App\Http\Controllers\RequestController; 
 use App\Http\Controllers\ApprovalController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\KitUsageController;
@@ -28,7 +29,8 @@ Route::get('/', function () {
 })->name('welcome');
 
 // --- RUTAS DE AUTENTICACIÓN Y PÁGINA DE INICIO ---
-Auth::routes();
+// 🔒 EXCLUIMOS EL REGISTRO PÚBLICO
+Auth::routes(['register' => false]);
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 
@@ -37,62 +39,103 @@ Route::middleware(['auth'])->group(function () {
 
     // =======================================================================
     // 1. INVENTARIO CENTRAL (Prefijo: /inventory)
-    // Coincide con la estructura de vistas: resources/views/inventory/...
+    // Permisos: 'productos_gestionar', 'entradas_ver_precios', 'productos_ver'
     // =======================================================================
     Route::prefix('inventory')->name('inventory.')->group(function () {
 
-        // Entidad PRODUCTS 
-        Route::resource('products', ProductController::class);
+        // Entidad PRODUCTS: Gestión completa (CRUD) solo si tiene el permiso.
+        // Los 'Solicitantes' solo tendrán acceso si les asignas 'productos_gestionar',
+        // si no, necesitarías una ruta de sólo lectura separada con 'productos_ver'.
+        Route::resource('products', ProductController::class)
+            ->middleware('permission:productos_gestionar');
 
-        // Entidad KITS (Extensión de productos) 
-        Route::resource('kits', KitController::class)->except(['show']);
+        // Entidad KITS: Gestión completa (CRUD)
+        Route::resource('kits', KitController::class)
+            ->except(['show'])
+            ->middleware('permission:productos_gestionar');
 
-        // Entidad PRODUCT_PRICES (Historial de precios) 
-        Route::resource('prices', ProductPriceController::class)->except(['edit', 'update', 'destroy'])->names('product_prices');
+        // Entidad PRODUCT_PRICES: Sólo registro y visualización de precios (Acceso sensible)
+        Route::resource('prices', ProductPriceController::class)
+            ->only(['index', 'store'])
+            ->names('product_prices')
+            ->middleware('permission:entradas_ver_precios');
     });
 
 
     // =======================================================================
     // 2. FLUJOS DE TRABAJO (Prefijo: /flows)
-    // Coincide con la estructura de vistas: resources/views/flows/...
+    // Permisos: 'entradas_registrar', 'salidas_solicitar', 'salidas_aprobar', 'salidas_entregar', etc.
     // =======================================================================
     Route::prefix('flows')->name('flows.')->group(function () {
 
-        // FLUJO DE ENTRADA: PURCHASES 
-        Route::resource('purchases', PurchaseController::class);
-
-        // FLUJO DE SALIDA: REQUESTS (Maestra) 
-        Route::resource('requests', RequestController::class);
+        // --- FLUJO DE ENTRADA: PURCHASES (Completamente restringido)
+        Route::resource('purchases', PurchaseController::class)
+            ->middleware('permission:entradas_registrar'); // Incluye index, create, store, etc.
         
-        // RUTAS AÑADIDAS: APROBACIÓN Y RECHAZO DE SOLICITUDES
-        Route::post('requests/{materialRequest}/approve', [ApprovalController::class, 'approve'])->name('requests.approve');
-        Route::post('requests/{materialRequest}/reject', [ApprovalController::class, 'reject'])->name('requests.reject');
+        // --- FLUJO DE SALIDA: REQUESTS (Solicitudes)
+        Route::resource('requests', RequestController::class);
+        // El index y show deben ser accesibles por 'salidas_ver_todas' y el solicitante.
+        // El create y store solo por 'salidas_solicitar' o 'salidas_aprobar'.
 
-        // APROBACIONES (Relación 1:1 con requests) 
-        Route::resource('approvals', ApprovalController::class)->only(['index', 'update', 'show']);
+        // 🔒 Gestión de Solicitudes: APROBACIÓN Y RECHAZO
+        // Solo el Encargado de Inventario o Super Admin puede aprobar.
+        Route::post('requests/{materialRequest}/approve', [ApprovalController::class, 'approve'])
+            ->name('requests.approve')
+            ->middleware('permission:salidas_aprobar');
+        
+        Route::post('requests/{materialRequest}/reject', [ApprovalController::class, 'reject'])
+            ->name('requests.reject')
+            ->middleware('permission:salidas_aprobar');
+            
+        // APROBACIONES (Vistas que muestran estados de aprobación) 
+        Route::resource('approvals', ApprovalController::class)
+            ->only(['index', 'update', 'show'])
+            ->middleware('permission:salidas_aprobar');
 
         // ENTREGAS (Salida final que resta stock) 
-        Route::resource('deliveries', DeliveryController::class)->only(['index', 'create', 'store', 'show']);
+        // Solo el encargado puede registrar entregas (y por ende restar stock).
+        Route::resource('deliveries', DeliveryController::class)
+            ->only(['index', 'create', 'store', 'show'])
+            ->middleware('permission:salidas_entregar');
 
         // USO DE KITS (Registro de consumo) 
-        Route::resource('kit-usages', KitUsageController::class)->only(['index', 'create', 'store'])->names('kit_usages');
+        // Accesible por cualquiera que pueda registrar un uso de kit.
+        Route::resource('kit-usages', KitUsageController::class)
+            ->only(['index', 'create', 'store'])
+            ->names('kit_usages')
+            ->middleware('permission:kits_registrar_uso');
     });
 
 
     // =======================================================================
     // 3. MÓDULOS MAESTROS Y CONFIGURACIÓN (Prefijo: /admin)
-    // Coincide con la estructura de vistas: resources/views/admin/...
     // =======================================================================
     Route::prefix('admin')->name('admin.')->group(function () {
+        
+        // 🔒 GESTIÓN DE USUARIOS Y REGISTRO (SOLO SUPER ADMINISTRADOR)
+        Route::middleware('role:Super Administrador')->group(function () {
+            
+            // Entidad USERS (CRUD de usuarios sin destroy)
+            Route::resource('users', UserController::class)->only(['index', 'create', 'edit', 'update']);
+            
+            // Redefinición de la ruta de registro, ahora es privada y protegida
+            Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+            Route::post('register', [RegisterController::class, 'register']);
 
-        // Entidad USERS (Gestión de usuarios)
-        Route::resource('users', UserController::class)->only(['index', 'create', 'edit', 'update']);
-        //Route::resource('roles', RoleController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+            // Si llegas a implementar RoleController:
+            // Route::resource('roles', RoleController::class);
+        });
+        
+        // 🔒 ENTIDADES MAESTRAS (Requiere permiso para gestionar cualquier maestro)
+        // Esto permite un control de acceso más granular que solo el Super Admin.
+        Route::middleware('permission:maestros_gestionar')->group(function () {
+            
+            Route::resource('suppliers', SupplierController::class);
+            Route::resource('locations', LocationController::class);
+            Route::resource('categories', CategoryController::class);
+            Route::resource('units', UnitController::class);
+        });
 
-        // Entidades Maestras (SUPPLIERS, LOCATIONS, CATEGORIES, UNITS)
-        Route::resource('suppliers', SupplierController::class);
-        Route::resource('locations', LocationController::class);
-        Route::resource('categories', CategoryController::class);
-        Route::resource('units', UnitController::class);
     });
+
 });

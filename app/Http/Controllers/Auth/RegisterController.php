@@ -80,12 +80,6 @@ class RegisterController extends Controller
 
     /**
      * Handle a registration request for the application.
-     *
-     * SOBREESCRITO: Se elimina la línea $this->guard()->login($user); 
-     * para evitar que el Super Administrador sea deslogueado.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
      */
     public function register(Request $request)
     {
@@ -96,12 +90,13 @@ class RegisterController extends Controller
 
         // LÍNEA ELIMINADA: $this->guard()->login($user); 
 
+        // Si existe un response custom (generalmente no), lo manejamos.
         if ($response = $this->registered($request, $user)) {
             return $response;
         }
 
-        // Redirige al Super Administrador de vuelta a la vista de registro con un mensaje de éxito
-
-        return redirect()->route('register')->with('success', '✅ Usuario ' . $user->name . ' creado como Solicitante.');
+        // 🎯 Corrección de redirección y mensaje:
+        // Redirige de vuelta a la ruta de registro (la misma página) con un mensaje de éxito.
+        return redirect()->route('register')->with('success', '✅ Usuario "' . $user->name . '" creado exitosamente y asignado como Solicitante.');
     }
 }
