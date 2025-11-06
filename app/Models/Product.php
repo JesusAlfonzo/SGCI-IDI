@@ -49,4 +49,23 @@ class Product extends Model
     {
         return $this->hasMany(ProductPrice::class);
     }
+
+    /**
+     * Relación: Un Producto puede ser un Kit (relación 1:1).
+     * Esto asume que la tabla 'kits' tiene la clave foránea 'product_id'.
+     */
+    public function kit()
+    {
+        return $this->hasOne(Kit::class, 'product_id');
+    }
+
+    /**
+     * Si este producto es un kit, devuelve los productos que lo componen.
+     * (Asumimos que esta relación ya existe para la gestión de componentes).
+     */
+    public function components()
+    {
+        return $this->belongsToMany(Product::class, 'kit_components', 'kit_id', 'component_id')
+                    ->withPivot('quantity');
+    }
 }

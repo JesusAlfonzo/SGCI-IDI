@@ -101,7 +101,7 @@ Route::middleware(['auth'])->group(function () {
         // USO DE KITS (Registro de consumo) 
         // Accesible por cualquiera que pueda registrar un uso de kit.
         Route::resource('kit-usages', KitUsageController::class)
-            ->only(['index', 'create', 'store'])
+            ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
             ->names('kit_usages')
             ->middleware('permission:kits_registrar_uso');
     });

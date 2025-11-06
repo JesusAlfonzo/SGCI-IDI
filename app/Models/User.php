@@ -45,4 +45,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Spatie: Determina si el usuario es un super-administrador
+     * y puede ignorar todas las comprobaciones de permiso.
+     */
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        // Si el usuario tiene el rol 'Super Administrador', devuelve TRUE inmediatamente
+        if ($this->hasRole('Super Administrador')) {
+            return true;
+        }
+
+        // De lo contrario, procede con la comprobación de permisos normal de Spatie
+        return parent::hasPermissionTo($permission, $guardName);
+    }
 }
