@@ -86,7 +86,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
 
         // Entidad USERS (Gestión de usuarios)
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->only(['index', 'create', 'edit', 'update']);
+        //Route::resource('roles', RoleController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
         // Entidades Maestras (SUPPLIERS, LOCATIONS, CATEGORIES, UNITS)
         Route::resource('suppliers', SupplierController::class);
